@@ -115,7 +115,7 @@
     ];
     // ************** Generate the tree diagram  *****************
     //定义树图的全局属性（宽高）
-    var margin = { top: 20, right: 120, bottom: 20, left: 120 },
+    var margin = { top: 50, right: 120, bottom: 20, left: 120 },
       width = 960 - margin.right - margin.left,
       height = 500 - margin.top - margin.bottom;
 
@@ -127,7 +127,7 @@
       .size([height, width]);
 
     var diagonal = d3.svg.diagonal()
-      .projection(function (d) { return [d.y, d.x]; });//创建新的斜线生成器
+      .projection(function (d) { return [d.x, d.y]; });//创建新的斜线生成器
 
     //声明与定义画布属性
     var svg = d3.select("body").append("svg")
@@ -152,8 +152,8 @@
         + " scale(" + scale + ")");
     }
     root = treeData[0];//treeData为上边定义的节点属性
-    root.x0 = 0;
-    root.y0 = width / 2;
+    root.y0 = 0;
+    root.x0 = height / 2;
 
     update(root);
 
@@ -167,7 +167,7 @@
         links = tree.links(nodes);
 
       // Normalize for fixed-depth.设置y坐标点，每层占180px
-      nodes.forEach(function (d) { d.y = d.depth * 180; });
+      nodes.forEach(function (d) { d.y = d.depth * 140; });
 
       // Update the nodes…每个node对应一个group
       var node = svg.selectAll("g.node")
@@ -175,7 +175,7 @@
       // Enter any new nodes at the parent's previous position.新增节点数据集，设置位置
       var nodeEnter = node.enter().append("g")  //在 svg 中添加一个g，g是 svg 中的一个属性，是 group 的意思，它表示一组什么东西，如一组 lines ， rects ，circles 其实坐标轴就是由这些东西构成的。
         .attr("class", "node") //attr设置html属性，style设置css属性
-        .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+        .attr("transform", function (d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
         .on("click", click);
 
       //添加连接点---此处设置的是圆圈过渡时候的效果（颜色）
@@ -207,21 +207,22 @@
 
       //添加标签
       nodeEnter.append("text")
-        .attr("x", function (d) { return d.children || d._children ? -13 : 13; })
+        .attr("y", function (d) { return d.children || d._children ? -18 : 18; })
         .attr("dy", ".35em")
-        .attr("text-anchor", function (d) { return d.children || d._children ? "end" : "start"; })
+        .attr('text-anchor', 'middle')
+        // .attr("text-anchor", function (d) { return d.children || d._children ? "end" : "start"; })
         .text(function (d) { return d.name; })
         .style("fill-opacity", 1e-6);
       //添加连线的标签
       nodeEnter.append("text").attr({
         "class": "edgelabel",
-        'dx': 0,
-        'dy': 0
-      }).attr("transform", function (d) {
-        const wx = d.parent.x > d.x ? 25 : d.parent.x < d.x ? -25 : 0
-        const wy = (d.parent.y - d.y) / 2;
-        return "translate(" + wy + "," + wx + ")";
+        'dx': -10,
+        'dy': -60
       })
+        // .attr("transform", function (d) {
+        //   const wy = d.parent.y > d.y ? 30 : d.parent.y < d.y ? -30 : 0
+        //   return "translate(" + wx + "," + wy + ")";
+        // })
         .text(function (d) { return d.rela });
       ;
 
@@ -230,7 +231,7 @@
       var nodeUpdate = node.transition()  //开始一个动画过渡
         .duration(duration)  //过渡延迟时间,此处主要设置的是圆圈节点随斜线的过渡延迟
         .attr("r", 10)
-        .attr("transform", function (d) { return "translate(" + d.y + "," + d.x + ")"; });
+        .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
       //更新连接点的填充色
       // nodeUpdate.select("circle")
       // .attr("r", 10)
@@ -248,7 +249,7 @@
         .attr("d", d3.svg.symbol()
           .size(function (d) {
             if
-            (d.value <= 9) { return "200"; } else if
+            (d.value <= 9) { return "400"; } else if
             (d.value >= 9) { return "400"; }
           })
           .type(function (d) {
@@ -271,7 +272,7 @@
       //最后处理消失的数据，添加消失动画
       var nodeExit = node.exit().transition()
         .duration(duration)
-        .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
+        .attr("transform", function (d) { return "translate(" + source.x + "," + source.y + ")"; })
         .remove();
 
       nodeExit.select("circle")
