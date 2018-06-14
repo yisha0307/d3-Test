@@ -7,6 +7,10 @@
   <title>Tree Example</title>
 
   <style>
+    svg {
+      border: 1px solid #333;
+    }
+
     .node {
       cursor: pointer;
     }
@@ -36,6 +40,16 @@
       font-weight: bold;
     }
 
+    text {
+      font: 12px Microsoft YaHei;
+      pointer-events: none;
+      text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+    }
+
+    .linetext {
+      font-size: 12px Microsoft YaHei;
+    }
+
     @keyframes alarm {
       0% {
         fill: #FF9966;
@@ -57,6 +71,7 @@
   <script src="http://d3js.org/d3.v3.min.js"></script>
 
   <script>
+    //支持zoom/drag/label display/connection display
     var treeData = [
       {
         "name": "Top Level",
@@ -67,15 +82,18 @@
             "name": "Level 2: A",
             "parent": "Top Level",
             "value": 10,
+            "rela": '222',
             "children": [
               {
                 "name": "Son of A",
                 "parent": "Level 2: A",
+                "rela": "33",
                 "value": 5
               },
               {
                 "name": "Daughter of A",
                 "parent": "Level 2: A",
+                "rela": "44",
                 "value": 5
               },
             ]
@@ -83,10 +101,13 @@
           {
             "name": "Level 2: B",
             "parent": "Top Level",
+            "rela": "55",
+
             "value": 5
           }, {
             "name": "Level 2: C",
             "parent": "Top Level",
+            "rela": "66",
             "value": 5
           },
         ]
@@ -110,11 +131,26 @@
 
     //声明与定义画布属性
     var svg = d3.select("body").append("svg")
+      .call(d3.behavior.zoom().on("zoom", rescale))
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    //rescale g
+    function rescale() {
+      trans = d3.event.translate;
+      scale = d3.event.scale;
+      if (scale <= 0.5) {
+        d3.selectAll('text').style('display', 'none');
+        console.log(scale);
+      } else {
+        d3.selectAll('text').style('display', 'block');
+      }
+      svg.attr("transform",
+        "translate(" + trans + ")"
+        + " scale(" + scale + ")");
+    }
     root = treeData[0];//treeData为上边定义的节点属性
     root.x0 = 0;
     root.y0 = width / 2;
@@ -124,7 +160,8 @@
     d3.select(self.frameElement).style("height", "500px");
 
     function update(source) {
-
+      svg.selectAll('g.rela').transition()
+        .duration(duration).remove();
       // Compute the new tree layout.计算新树图的布局
       var nodes = tree.nodes(root).reverse(),
         links = tree.links(nodes);
@@ -175,6 +212,18 @@
         .attr("text-anchor", function (d) { return d.children || d._children ? "end" : "start"; })
         .text(function (d) { return d.name; })
         .style("fill-opacity", 1e-6);
+      //添加连线的标签
+      nodeEnter.append("text").attr({
+        "class": "edgelabel",
+        'dx': 0,
+        'dy': 0
+      }).attr("transform", function (d) {
+        const wx = d.parent.x > d.x ? 25 : d.parent.x < d.x ? -25 : 0
+        const wy = (d.parent.y - d.y) / 2;
+        return "translate(" + wy + "," + wx + ")";
+      })
+        .text(function (d) { return d.rela });
+      ;
 
       // Transition nodes to their new position.将节点过渡到一个新的位置-----主要是针对节点过渡过程中的过渡效果
       //node就是保留的数据集，为原来数据的图形添加过渡动画。首先是整个组的位置
@@ -199,7 +248,7 @@
         .attr("d", d3.svg.symbol()
           .size(function (d) {
             if
-            (d.value <= 9) { return "400"; } else if
+            (d.value <= 9) { return "200"; } else if
             (d.value >= 9) { return "400"; }
           })
           .type(function (d) {
@@ -269,6 +318,7 @@
         d.x0 = d.x;
         d.y0 = d.y;
       });
+
     }
 
     //定义一个将某节点折叠的函数
