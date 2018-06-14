@@ -160,8 +160,6 @@
     d3.select(self.frameElement).style("height", "500px");
 
     function update(source) {
-      svg.selectAll('g.rela').transition()
-        .duration(duration).remove();
       // Compute the new tree layout.计算新树图的布局
       var nodes = tree.nodes(root).reverse(),
         links = tree.links(nodes);
@@ -217,13 +215,14 @@
       nodeEnter.append("text").attr({
         "class": "edgelabel",
         'dx': -10,
-        'dy': -60
+        'dy': 0
       })
-        // .attr("transform", function (d) {
-        //   const wy = d.parent.y > d.y ? 30 : d.parent.y < d.y ? -30 : 0
-        //   return "translate(" + wx + "," + wy + ")";
-        // })
-        .text(function (d) { return d.rela });
+        .attr("transform", function (d) {
+          const wx = d.parent.x > d.x ? 10 : d.parent.x < d.x ? -10 : 0
+          return "translate(" + wx + ", -60)";
+        })
+        .text(function (d) { return d.rela })
+        .style("fill-opacity", 1e-6);
       ;
 
       // Transition nodes to their new position.将节点过渡到一个新的位置-----主要是针对节点过渡过程中的过渡效果
@@ -231,7 +230,9 @@
       var nodeUpdate = node.transition()  //开始一个动画过渡
         .duration(duration)  //过渡延迟时间,此处主要设置的是圆圈节点随斜线的过渡延迟
         .attr("r", 10)
-        .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+        .attr("transform", function (d) {
+          return "translate(" + d.x + "," + d.y + ")";
+        });
       //更新连接点的填充色
       // nodeUpdate.select("circle")
       // .attr("r", 10)
@@ -267,6 +268,8 @@
 
       nodeUpdate.select("text")
         .style("fill-opacity", 1);
+      nodeUpdate.select(".edgelabel")
+        .style("fill-opacity", 1);
 
       // Transition exiting nodes to the parent's new position.过渡现有的节点到父母的新位置。
       //最后处理消失的数据，添加消失动画
@@ -278,6 +281,8 @@
       nodeExit.select("circle")
         .attr("r", 1e-6);
       nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
+      nodeExit.select(".edgelabel")
         .style("fill-opacity", 1e-6);
 
       // Update the links…线操作相关

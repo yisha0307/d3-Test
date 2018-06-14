@@ -41,7 +41,6 @@ text {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
-// http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
 var links = [
   {source: "同花顺", target: "IFIND", type: "resolved", rela:"主营产品"},
   {source: "同花顺", target: "手机金融信息服务", type: "resolved", rela:"主营产品"},
@@ -74,8 +73,8 @@ var force = d3.layout.force()//layout将json格式转化为力学图可用的格
     .nodes(d3.values(nodes))//设定节点数组
     .links(links)//设定连线数组
     .size([width, height])//作用域的大小
-    .linkDistance(180)//连接线长度
-    .charge(-1500)//顶点的电荷数。该参数决定是排斥还是吸引，数值越小越互相排斥
+    .linkDistance(100)//连接线长度
+    .charge(-800)//顶点的电荷数。该参数决定是排斥还是吸引，数值越小越互相排斥
     .on("tick", tick)//指时间间隔，隔一段时间刷新一次画面
     .start();//开始转换
 
@@ -121,10 +120,6 @@ var edges_line = svg.selectAll(".edgepath")
     .attr({
           'd': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
           'class':'edgepath',
-          //'fill-opacity':0,
-          //'stroke-opacity':0,
-          //'fill':'blue',
-          //'stroke':'red',
           'id':function(d,i) {return 'edgepath'+i;}})
     .style("stroke",function(d){
          var lineColor;
@@ -137,28 +132,28 @@ var edges_line = svg.selectAll(".edgepath")
          return lineColor;
      })
     .style("pointer-events", "none")
-    .style("stroke-width",0.5)//线条粗细
+    .style("stroke-width",2)//线条粗细
     .attr("marker-end", "url(#resolved)" );//根据箭头标记的id号标记箭头
 
-var edges_text = svg.append("g").selectAll(".edgelabel")
-.data(force.links())
-.enter()
-.append("text")
-.style("pointer-events", "none")
-//.attr("class","linetext")
-.attr({  'class':'edgelabel',
-               'id':function(d,i){return 'edgepath'+i;},
-               'dx':80,
-               'dy':0
-               //'font-size':10,
-               //'fill':'#aaa'
-               });
+// var edges_text = svg.append("g").selectAll(".edgelabel")
+// .data(force.links())
+// .enter()
+// .append("text")
+// .style("pointer-events", "none")
+// //.attr("class","linetext")
+// .attr({  'class':'edgelabel',
+//                'id':function(d,i){return 'edgepath'+i;},
+//                'dx':80,
+//                'dy':0
+//                //'font-size':10,
+//                //'fill':'#aaa'
+//                });
 
 //设置线条上的文字
-edges_text.append('textPath')
-.attr('xlink:href',function(d,i) {return '#edgepath'+i})
-.style("pointer-events", "none")
-.text(function(d){return d.rela;});
+// edges_text.append('textPath')
+// .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+// .style("pointer-events", "none")
+// .text(function(d){return d.rela;});
 
 //圆圈
 var circle = svg.append("g").selectAll("circle")
@@ -318,17 +313,17 @@ function tick() {
       return path;
   });  
     
-  edges_text.attr('transform',function(d,i){
-        if (d.target.x<d.source.x){
-            bbox = this.getBBox();
-            rx = bbox.x+bbox.width/2;
-            ry = bbox.y+bbox.height/2;
-            return 'rotate(180 '+rx+' '+ry+')';
-        }
-        else {
-            return 'rotate(0)';
-        }
-   });
+//   edges_text.attr('transform',function(d,i){
+//         if (d.target.x<d.source.x){
+//             bbox = this.getBBox();
+//             rx = bbox.x+bbox.width/2;
+//             ry = bbox.y+bbox.height/2;
+//             return 'rotate(180 '+rx+' '+ry+')';
+//         }
+//         else {
+//             return 'rotate(0)';
+//         }
+//    });
 }
 
 //设置连接线的坐标,使用椭圆弧路径段双向编码
