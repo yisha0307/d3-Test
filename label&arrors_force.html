@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-
+svg {
+      border: 1px solid #333;
+    }
 .link {
   fill: none;
   stroke: #666;
@@ -79,8 +81,10 @@ var force = d3.layout.force()//layout将json格式转化为力学图可用的格
     .start();//开始转换
 
 var svg = d3.select("body").append("svg")
+    .call(d3.behavior.zoom().on("zoom", rescale))
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+    .append("g");
 
 //箭头
 var marker=
@@ -99,7 +103,14 @@ var marker=
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")//箭头的路径
     .attr('fill','#000000');//箭头颜色
-
+    //rescale g
+    function rescale() {
+        trans = d3.event.translate;
+        scale = d3.event.scale;
+        svg.attr("transform",
+            "translate(" + trans + ")"
+            + " scale(" + scale + ")");
+    }
 /* 将连接线设置为曲线
 var path = svg.append("g").selectAll("path")
     .data(force.links())
