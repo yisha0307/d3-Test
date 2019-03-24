@@ -1,0 +1,6 @@
+d3.select('body')
+    .selectAll('p')
+    .data(['hello', 'hi', 'yo', 'hey', 'hola', 'why'])
+    .enter()
+    .append('p')
+        .text(d => d + ', world')
